@@ -1,0 +1,139 @@
+Trigger:
+  cron: '30 16 * * *'
+  tz: UTC
+
+Workflow:
+  id: fduan.OTP_daily_ab_11440
+  name: fduan - OTP_daily_ab_11440
+  jobs:
+
+  - job:
+      id: otp_su_decl
+      name: otp_su_decl
+      type: SparkSqlNotebook
+      tags: 
+      - otp_su_decl
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/3a_signup_after_decline.sql
+
+  - job:
+      id: otp_ablaze
+      name: otp_ablaze
+      type: SparkSqlNotebook
+      tags: 
+      - otp_ablaze
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/3b_otp_ablaze_metrics.sql
+  - job:
+      id: otp_paid
+      name: otp_paid
+      type: SparkSqlNotebook
+      tags:
+      - otp_paid
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/4a_otp_paid_after_signup.sql
+  - job:
+      id: otp_cb
+      name: otp_cb
+      type: SparkSqlNotebook
+      tags: 
+      - otp_cb
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/4b_otp_chargeback_after_signup.sql
+  - job:
+      id: otp_pbf
+      name: otp_pbf
+      type: SparkSqlNotebook
+      tags:
+      - otp_pbf
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/4c_otp_playback_session.sql
+  - job:
+      id: otp_rev
+      name: otp_rev
+      type: SparkSqlNotebook
+      tags:
+      - otp_rev
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/4d_otp_rev_ret.sql
+
+  - job:
+      id: otp_cs
+      name: otp_cs
+      type: SparkSqlNotebook
+      tags:
+      - otp_cs
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/4e_otp_CS_contact.sql  
+
+
+  - job:
+      id: otp_final
+      name: otp_final
+      type: SparkSqlNotebook
+      tags:
+      - otp_final
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/5_otp_final_join.sql   
+  dag:
+    - otp_su_decl -> otp_paid
+    - otp_su_decl -> otp_cb
+    - otp_su_decl -> otp_pbf
+    - otp_su_decl -> otp_rev
+    - otp_su_decl -> otp_cs
+    - otp_ablaze -> otp_final
+    - otp_paid -> otp_final
+    - otp_cb -> otp_final
+    - otp_pbf -> otp_final
+    - otp_rev -> otp_final
+    - otp_cs -> otp_final
+
+    

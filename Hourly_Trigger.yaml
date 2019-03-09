@@ -1,0 +1,143 @@
+# http://manuals.test.netflix.net/view/bdp/mkdocs/master/dsl/yaml_dsl/
+# scheduler push otp_test.yaml.  ###to sandbox
+# scheduler push --prod otp_test.yaml
+
+# https://bigdataportal.dynprod.netflix.net:7002/#jobs/workflow/meson/bdpmeson/test/wzheng.comcast_ab
+# https://bigdataportal.dynprod.netflix.net:7002/#jobs/workflow/meson/bdpmeson/sandbox/fduan.OTP_ab_11440
+
+
+
+
+Trigger:
+  cron: '30 * * * *'
+  tz: UTC
+
+Workflow:
+  id: fduan.OTP_ab_11440
+  name: fduan - OTP_ab_11440
+  jobs:
+
+  - job:
+      id: otp_pmt_event
+      name: otp_pmt_event
+      type: SparkSqlNotebook
+      tags: 
+      - otp_pmt_event
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/1e_COP_pmt_event.sql
+
+  - job:
+      id: otp_ab_alloc
+      name: otp_ab_alloc
+      type: SparkSqlNotebook
+      tags: 
+      - otp_ab_alloc
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/1_otp_ab_assignment.sql
+  - job:
+      id: dy_trigger
+      name: dy_trigger
+      type: SparkSqlNotebook
+      tags:
+      - dy_trigger
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/1a_otp_dy_trigger.sql
+  - job:
+      id: dy_phone_provide
+      name: dy_phone_provide
+      type: SparkSqlNotebook
+      tags: 
+      - dy_phone_provide
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/1b_otp_dy_phone_provided.sql
+  - job:
+      id: dy_phone_cntry
+      name: dy_phone_cntry
+      type: SparkSqlNotebook
+      tags:
+      - dy_phone_cntry
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/1c_otp_dy_phone_cntry.sql
+  - job:
+      id: dy_code_page
+      name: dy_code_page
+      type: SparkSqlNotebook
+      tags:
+      - dy_code_page
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/1d_otp_dy_code_page.sql 
+  - job:
+      id: dy_journey
+      name: dy_journey
+      type: SparkSqlNotebook
+      tags:
+      - dy_journey
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/2_otp_dy_journey.sql 
+
+  - job:
+      id: dy_journey_pmt
+      name: dy_journey_pmt
+      type: SparkSqlNotebook
+      tags:
+      - dy_journey_pmt
+      - genie
+      - sparksql
+      genie:
+        username: fduan
+        environment: prod
+      spark:
+        version: 2.1.1
+        script: s3://netflix-dataoven-prod-users/fduan/data/OTP_11440_dashboard/3c_otp_BIN_IBAN_attack_hourly.sql    
+
+
+  dag:
+    - otp_ab_alloc -> dy_journey
+    - dy_trigger -> dy_journey
+    - dy_phone_provide -> dy_journey
+    - dy_phone_cntry -> dy_journey
+    - dy_code_page -> dy_journey
+    - dy_journey -> dy_journey_pmt
+    - otp_pmt_event -> dy_journey_pmt
